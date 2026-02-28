@@ -31,9 +31,9 @@ function ProtectedRoute({ children, role }: { children: React.ReactNode, role?: 
 
 function AppContent() {
   return (
-    <div className="min-h-screen bg-black text-white font-sans relative">
+    <div className="min-h-screen text-white font-sans relative">
       <ParticlesBackground />
-      <div className="fixed inset-0 -z-10 pointer-events-none overflow-hidden opacity-30">
+      <div className="fixed inset-0 -z-10 pointer-events-none overflow-hidden opacity-15">
         <FloatingLines
           linesGradient={["#f59e0b", "#b45309", "#451a03"]}
           animationSpeed={0.8}
@@ -50,13 +50,13 @@ function AppContent() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
-        
+
         {/* Student Routes */}
         <Route path="/jobs" element={<ProtectedRoute><JobListingPage /></ProtectedRoute>} />
         <Route path="/jobs/:id" element={<ProtectedRoute><JobDetailPage /></ProtectedRoute>} />
         <Route path="/dashboard" element={<ProtectedRoute role="student"><StudentDashboard /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-        
+
         {/* Admin Routes */}
         <Route path="/admin" element={<ProtectedRoute role="admin"><AdminDashboard /></ProtectedRoute>} />
         <Route path="/admin/jobs/add" element={<ProtectedRoute role="admin"><AddEditJobPage /></ProtectedRoute>} />
