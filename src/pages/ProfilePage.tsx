@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
-import { User, Mail, GraduationCap, Code, FileText, Save, Loader2, CheckCircle, Plus, X } from "lucide-react";
+import { User, Mail, GraduationCap, Code, FileText, Save, Loader2, CheckCircle, Plus, X, Sparkles, TrendingUp, Lightbulb, BookOpen, Map, ListChecks, MessageSquare, ExternalLink } from "lucide-react";
 import { motion } from "motion/react";
 
 export default function ProfilePage() {
@@ -10,6 +10,20 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
   const [skillInput, setSkillInput] = useState("");
+  const [predicting, setPredicting] = useState(false);
+  const [prediction, setPrediction] = useState<{
+    salaryRange: string;
+    justification: string;
+    tips: string[];
+  } | null>(null);
+  const [prepping, setPrepping] = useState(false);
+  const [prepKit, setPrepKit] = useState<{
+    roadmap: { week: string; focus: string; tasks: string[] }[];
+    technicalTopics: string[];
+    behavioralQuestions: string[];
+    resources: string[];
+  } | null>(null);
+  const [resumeText, setResumeText] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -60,6 +74,39 @@ export default function ProfilePage() {
     setFormData({ ...formData, skills: formData.skills.filter(s => s !== skill) });
   };
 
+  const predictSalary = async () => {
+    setPredicting(true);
+    try {
+      const res = await axios.post("/api/ai/predict-salary", {
+        resumeText,
+        skills: formData.skills,
+        branch: formData.branch,
+        year: formData.year
+      });
+      setPrediction(res.data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setPredicting(false);
+    }
+  };
+
+  const generatePrepKit = async () => {
+    setPrepping(true);
+    try {
+      const res = await axios.post("/api/ai/interview-prep", {
+        skills: formData.skills,
+        branch: formData.branch,
+        year: formData.year
+      });
+      setPrepKit(res.data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setPrepping(false);
+    }
+  };
+
   if (loading) return (
     <div className="flex items-center justify-center py-40">
       <Loader2 className="w-10 h-10 text-gold-500 animate-spin" />
@@ -97,7 +144,7 @@ export default function ProfilePage() {
         </div>
 
         {/* Edit Form */}
-        <div className="md:col-span-2">
+        <div className="md:col-span-2 space-y-12">
           <form onSubmit={handleSubmit} className="glass p-8 rounded-3xl space-y-8">
             <div className="grid sm:grid-cols-2 gap-6">
               <div className="space-y-2">
@@ -209,6 +256,176 @@ export default function ProfilePage() {
               </button>
             </div>
           </form>
+
+          {/* AI Salary Predictor Section */}
+          {authUser?.role === "student" && (
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="glass p-8 rounded-3xl space-y-8 border-gold-500/20"
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-2 gold-gradient rounded-lg">
+                  <Sparkles className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold">AI Salary <span className="gold-text-gradient">Predictor</span></h2>
+                  <p className="text-gray-400 text-sm">Let AI analyze your profile and predict your market value.</p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <label className="text-sm font-medium text-gray-400">Additional Resume Text / Experience (Optional)</label>
+                <textarea 
+                  value={resumeText}
+                  onChange={(e) => setResumeText(e.target.value)}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 focus:border-gold-500/50 focus:outline-none min-h-[120px]"
+                  placeholder="Paste your resume summary or key achievements here for a more accurate prediction..."
+                />
+              </div>
+
+              <button 
+                onClick={predictSalary}
+                disabled={predicting || formData.skills.length === 0}
+                className="w-full gold-gradient py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50"
+              >
+                {predicting ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Sparkles className="w-5 h-5" /> Predict My Salary</>}
+              </button>
+
+              {prediction && (
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="p-6 rounded-2xl bg-gold-500/5 border border-gold-500/20 space-y-6"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-gold-400 font-bold">
+                      <TrendingUp className="w-5 h-5" /> Predicted Range
+                    </div>
+                    <div className="text-2xl font-black gold-text-gradient">{prediction.salaryRange}</div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="text-sm font-bold text-gray-300 uppercase tracking-wider">Justification</div>
+                    <p className="text-gray-400 text-sm leading-relaxed">{prediction.justification}</p>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-sm font-bold text-gray-300 uppercase tracking-wider">
+                      <Lightbulb className="w-4 h-4 text-gold-500" /> Tips to Increase Value
+                    </div>
+                    <ul className="space-y-2">
+                      {prediction.tips.map((tip, i) => (
+                        <li key={i} className="flex items-start gap-2 text-sm text-gray-400">
+                          <span className="text-gold-500 mt-1">•</span>
+                          {tip}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </motion.div>
+              )}
+            </motion.div>
+          )}
+
+          {/* AI Interview Prep Kit Section */}
+          {authUser?.role === "student" && (
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="glass p-8 rounded-3xl space-y-8 border-gold-500/20"
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-2 gold-gradient rounded-lg">
+                  <BookOpen className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold">Interview <span className="gold-text-gradient">Prep Kit</span></h2>
+                  <p className="text-gray-400 text-sm">Personalized roadmap and resources based on your profile.</p>
+                </div>
+              </div>
+
+              <button 
+                onClick={generatePrepKit}
+                disabled={prepping || formData.skills.length === 0}
+                className="w-full bg-white/5 border border-white/10 hover:bg-white/10 py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+              >
+                {prepping ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Map className="w-5 h-5 text-gold-500" /> Generate Prep Roadmap</>}
+              </button>
+
+              {prepKit && (
+                <div className="space-y-10">
+                  {/* Roadmap */}
+                  <div className="space-y-6">
+                    <div className="flex items-center gap-2 text-gold-400 font-bold uppercase tracking-wider text-sm">
+                      <Map className="w-5 h-5" /> 4-Week Roadmap
+                    </div>
+                    <div className="grid gap-4">
+                      {prepKit.roadmap.map((item, i) => (
+                        <div key={i} className="p-5 rounded-2xl bg-white/5 border border-white/10 space-y-3">
+                          <div className="flex items-center justify-between">
+                            <span className="text-gold-500 font-bold">{item.week}</span>
+                            <span className="text-xs text-gray-500 font-medium px-2 py-1 rounded bg-white/5 uppercase">{item.focus}</span>
+                          </div>
+                          <ul className="space-y-2">
+                            {item.tasks.map((task, j) => (
+                              <li key={j} className="flex items-start gap-2 text-sm text-gray-400">
+                                <CheckCircle className="w-4 h-4 text-gold-500/50 mt-0.5" />
+                                {task}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="grid sm:grid-cols-2 gap-8">
+                    {/* Technical Topics */}
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2 text-gold-400 font-bold uppercase tracking-wider text-sm">
+                        <ListChecks className="w-5 h-5" /> Key Tech Topics
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {prepKit.technicalTopics.map((topic, i) => (
+                          <span key={i} className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-gray-300 text-sm">
+                            {topic}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Behavioral Questions */}
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2 text-gold-400 font-bold uppercase tracking-wider text-sm">
+                        <MessageSquare className="w-5 h-5" /> Behavioral Prep
+                      </div>
+                      <div className="space-y-2">
+                        {prepKit.behavioralQuestions.map((q, i) => (
+                          <p key={i} className="text-sm text-gray-400 italic">"{q}"</p>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Resources */}
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 text-gold-400 font-bold uppercase tracking-wider text-sm">
+                      <ExternalLink className="w-5 h-5" /> Recommended Resources
+                    </div>
+                    <div className="grid sm:grid-cols-2 gap-3">
+                      {prepKit.resources.map((res, i) => (
+                        <div key={i} className="flex items-center gap-2 p-3 rounded-xl bg-white/5 border border-white/10 text-sm text-gray-400">
+                          <div className="w-1.5 h-1.5 rounded-full bg-gold-500" />
+                          {res}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          )}
         </div>
       </div>
     </div>

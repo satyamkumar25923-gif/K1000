@@ -7,7 +7,6 @@ const __dirname = path.dirname(__filename);
 
 const db = new Database(path.join(__dirname, "../../data.db"));
 db.pragma("journal_mode = WAL");
-db.pragma("foreign_keys = ON");
 
 // Initialize Tables
 db.exec(`
@@ -45,8 +44,8 @@ db.exec(`
     jobId TEXT NOT NULL,
     status TEXT DEFAULT 'Applied',
     appliedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY(studentId) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY(jobId) REFERENCES jobs(id) ON DELETE CASCADE
+    FOREIGN KEY(studentId) REFERENCES users(id),
+    FOREIGN KEY(jobId) REFERENCES jobs(id)
   );
 `);
 

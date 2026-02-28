@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { User, Job, Application } from "./server/models.js";
+import { GoogleGenAI } from "@google/genai";
 
 dotenv.config();
 
@@ -242,6 +243,83 @@ async function startServer() {
       res.json({ totalJobs, totalApplications, recentApplications: [] });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
+    }
+  });
+
+  // AI Salary Prediction
+  app.post("/api/ai/predict-salary", authenticate, async (req, res) => {
+    try {
+      const { resumeText, skills, branch, year } = req.body;
+      
+      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+      const prompt = `
+        As an expert career consultant and HR specialist, analyze the following candidate profile and predict a fair annual salary range (in USD or INR, specify which) they deserve in the current market.
+        
+        Candidate Details:
+        Branch/Field: ${branch}
+        Year of Study/Experience: ${year}
+        Skills: ${skills.join(", ")}
+        Resume Text/Additional Info: ${resumeText || "None provided"}
+        
+        Please provide:
+        1. Predicted Salary Range (Annual)
+        2. Brief justification based on skills and market trends.
+        3. 3-5 specific tips to increase this value.
+        
+        Format your response as a clean JSON object with keys: "salaryRange", "justification", and "tips" (an array of strings).
+      `;
+
+      const response = await ai.models.generateContent({
+        model: "gemini-3-flash-preview",
+        contents: prompt,
+        config: {
+          responseMimeType: "application/json",
+        }
+      });
+
+      const result = JSON.parse(response.text || "{}");
+      res.json(result);
+    } catch (error: any) {
+      console.error("AI Prediction Error:", error);
+      res.status(500).json({ message: "Failed to predict salary. Please try again later." });
+    }
+  });
+
+  // AI Interview Prep Kit
+  app.post("/api/ai/interview-prep", authenticate, async (req, res) => {
+    try {
+      const { skills, branch, year } = req.body;
+      
+      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+      const prompt = `
+        As a senior technical recruiter and career coach, generate a comprehensive Interview Preparation Kit and Roadmap for a student with the following profile:
+        
+        Field/Branch: ${branch}
+        Current Level: ${year}
+        Top Skills: ${skills.join(", ")}
+        
+        Please provide:
+        1. A 4-week structured Roadmap (Week 1 to Week 4).
+        2. Top 5 technical topics to master.
+        3. 3 common behavioral questions tailored to this role.
+        4. Recommended resources (links or names of platforms).
+        
+        Format your response as a clean JSON object with keys: "roadmap" (array of {week: string, focus: string, tasks: string[]}), "technicalTopics" (array of strings), "behavioralQuestions" (array of strings), and "resources" (array of strings).
+      `;
+
+      const response = await ai.models.generateContent({
+        model: "gemini-3-flash-preview",
+        contents: prompt,
+        config: {
+          responseMimeType: "application/json",
+        }
+      });
+
+      const result = JSON.parse(response.text || "{}");
+      res.json(result);
+    } catch (error: any) {
+      console.error("AI Prep Kit Error:", error);
+      res.status(500).json({ message: "Failed to generate prep kit. Please try again later." });
     }
   });
 
