@@ -28,26 +28,9 @@ export default function LoginPage() {
     }
   };
 
-  const handleDemoLogin = async (role: "student" | "admin") => {
-    const demoEmail = role === "student" ? "demo@student.com" : "demo@admin.com";
-    const demoPassword = "password123";
-
-    setLoading(true);
-    setError("");
-    try {
-      const res = await axios.post("/api/auth/login", { email: demoEmail, password: demoPassword });
-      login(res.data.token, res.data.user);
-      navigate(res.data.user.role === "admin" ? "/admin" : "/dashboard");
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Demo login failed");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="min-h-[calc(100vh-80px)] flex items-center justify-center p-6">
-      <motion.div
+      <motion.div 
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         className="w-full max-w-md glass p-8 rounded-3xl"
@@ -71,8 +54,8 @@ export default function LoginPage() {
             <label className="block text-sm font-medium text-gray-400 mb-2">Email Address</label>
             <div className="relative">
               <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-              <input
-                type="email"
+              <input 
+                type="email" 
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -86,8 +69,8 @@ export default function LoginPage() {
             <label className="block text-sm font-medium text-gray-400 mb-2">Password</label>
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-              <input
-                type="password"
+              <input 
+                type="password" 
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -97,38 +80,14 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <button
-            type="submit"
+          <button 
+            type="submit" 
             disabled={loading}
             className="w-full gold-gradient py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-50 transition-opacity"
           >
             {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Sign In"}
           </button>
         </form>
-
-        <div className="relative my-8">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-white/10"></div>
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-4 bg-[#0a0a0a] text-gray-500">Or use demo accounts</span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <button
-            onClick={() => handleDemoLogin("student")}
-            className="flex items-center justify-center gap-2 py-3 rounded-xl border border-white/10 hover:bg-white/5 transition-colors text-sm font-medium"
-          >
-            Student Demo
-          </button>
-          <button
-            onClick={() => handleDemoLogin("admin")}
-            className="flex items-center justify-center gap-2 py-3 rounded-xl border border-white/10 hover:bg-white/5 transition-colors text-sm font-medium"
-          >
-            Admin Demo
-          </button>
-        </div>
 
         <p className="text-center mt-8 text-gray-400">
           Don't have an account? <Link to="/signup" className="text-gold-400 hover:underline">Create one</Link>
