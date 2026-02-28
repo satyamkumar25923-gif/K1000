@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { Briefcase, CheckCircle, Clock, XCircle, ChevronRight, Loader2 } from "lucide-react";
 import { motion } from "motion/react";
 import { Link } from "react-router-dom";
+import MagicBento from "../components/MagicBento";
 
 export default function StudentDashboard() {
   const { user } = useAuth();
@@ -51,7 +52,13 @@ export default function StudentDashboard() {
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Stats */}
         <div className="lg:col-span-1 space-y-6">
-          <div className="glass p-8 rounded-3xl">
+          <MagicBento
+            className="glass p-8 rounded-3xl"
+            textAutoHide={false}
+            enableStars
+            enableSpotlight
+            enableBorderGlow={true}
+          >
             <h3 className="text-xl font-bold mb-6">Application Overview</h3>
             <div className="space-y-4">
               <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5">
@@ -73,9 +80,16 @@ export default function StudentDashboard() {
                 <span className="text-2xl font-bold">{applications.filter((a: any) => a.status === "Shortlisted").length}</span>
               </div>
             </div>
-          </div>
+          </MagicBento>
 
-          <div className="glass p-8 rounded-3xl bg-gold-500/5 border-gold-500/10">
+          <MagicBento
+            className="glass p-8 rounded-3xl bg-gold-500/5 border-gold-500/10"
+            textAutoHide={false}
+            enableStars
+            enableSpotlight
+            enableBorderGlow={true}
+            glowColor="245, 158, 11"
+          >
             <h3 className="text-xl font-bold mb-4">Quick Tip</h3>
             <p className="text-gray-400 text-sm leading-relaxed">
               Keep your skills updated in your profile to increase your chances of being shortlisted by 40%.
@@ -83,7 +97,7 @@ export default function StudentDashboard() {
             <Link to="/profile" className="mt-6 inline-block text-gold-400 font-bold text-sm hover:underline">
               Update Profile →
             </Link>
-          </div>
+          </MagicBento>
         </div>
 
         {/* Applications List */}
@@ -101,7 +115,7 @@ export default function StudentDashboard() {
             ) : applications.length > 0 ? (
               <div className="divide-y divide-white/5">
                 {applications.map((app: any) => (
-                  <motion.div 
+                  <motion.div
                     key={app._id}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}

@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import { Plus, Edit, Trash2, Users, Briefcase, TrendingUp, Loader2, CheckCircle, XCircle, Clock } from "lucide-react";
+import { Plus, Edit, Trash2, Users, Briefcase, TrendingUp, Loader2, CheckCircle, XCircle } from "lucide-react";
 import { motion } from "motion/react";
+import MagicBento from "../components/MagicBento";
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState<any>(null);
@@ -76,30 +77,42 @@ export default function AdminDashboard() {
           <h1 className="text-4xl font-bold mb-2">Admin <span className="gold-text-gradient">Dashboard</span></h1>
           <p className="text-gray-400">Manage opportunities and track student applications.</p>
         </div>
-        <Link 
-          to="/admin/jobs/add" 
+        <Link
+          to="/admin/jobs/add"
           className="gold-gradient px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:scale-105 transition-transform shadow-lg shadow-gold-500/20"
         >
           <Plus className="w-5 h-5" /> Post New Job
         </Link>
       </div>
 
-      {/* Stats Grid */}
+      {/* Stats Grid with MagicBento */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
         {[
           { label: "Total Jobs", value: stats?.totalJobs || 0, icon: <Briefcase className="w-6 h-6" />, color: "text-gold-500 bg-gold-500/10" },
           { label: "Total Applications", value: stats?.totalApplications || 0, icon: <Users className="w-6 h-6" />, color: "text-blue-500 bg-blue-500/10" },
           { label: "Recent Activity", value: stats?.recentApplications?.length || 0, icon: <TrendingUp className="w-6 h-6" />, color: "text-green-500 bg-green-500/10" }
         ].map((stat, i) => (
-          <div key={i} className="glass p-8 rounded-3xl flex items-center gap-6">
-            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${stat.color}`}>
-              {stat.icon}
+          <MagicBento
+            key={i}
+            className="glass p-8 rounded-3xl"
+            textAutoHide={false}
+            enableStars
+            enableSpotlight
+            enableBorderGlow={true}
+            enableTilt={false}
+            clickEffect
+            glowColor={i === 0 ? "245, 158, 11" : i === 1 ? "59, 130, 246" : "34, 197, 94"}
+          >
+            <div className="flex items-center gap-6">
+              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${stat.color}`}>
+                {stat.icon}
+              </div>
+              <div>
+                <div className="text-3xl font-bold">{stat.value}</div>
+                <div className="text-gray-500 text-sm font-medium">{stat.label}</div>
+              </div>
             </div>
-            <div>
-              <div className="text-3xl font-bold">{stat.value}</div>
-              <div className="text-gray-500 text-sm font-medium">{stat.label}</div>
-            </div>
-          </div>
+          </MagicBento>
         ))}
       </div>
 
@@ -112,7 +125,7 @@ export default function AdminDashboard() {
             </div>
             <div className="max-h-[600px] overflow-y-auto divide-y divide-white/5">
               {jobs.map((job: any) => (
-                <div 
+                <div
                   key={job._id}
                   onClick={() => { setSelectedJob(job); fetchApplicants(job._id); }}
                   className={`p-6 cursor-pointer hover:bg-white/5 transition-colors ${selectedJob?._id === job._id ? 'bg-white/5 border-l-4 border-gold-500' : ''}`}
@@ -174,24 +187,23 @@ export default function AdminDashboard() {
                             {app.studentId.branch} • {app.studentId.year}
                           </td>
                           <td className="px-8 py-6">
-                            <span className={`px-3 py-1 rounded-full text-[10px] font-bold border ${
-                              app.status === 'Shortlisted' ? 'text-green-400 border-green-400/20 bg-green-400/10' :
-                              app.status === 'Rejected' ? 'text-red-400 border-red-400/20 bg-red-400/10' :
-                              'text-gold-400 border-gold-400/20 bg-gold-400/10'
-                            }`}>
+                            <span className={`px-3 py-1 rounded-full text-[10px] font-bold border ${app.status === 'Shortlisted' ? 'text-green-400 border-green-400/20 bg-green-400/10' :
+                                app.status === 'Rejected' ? 'text-red-400 border-red-400/20 bg-red-400/10' :
+                                  'text-gold-400 border-gold-400/20 bg-gold-400/10'
+                              }`}>
                               {app.status}
                             </span>
                           </td>
                           <td className="px-8 py-6">
                             <div className="flex gap-2">
-                              <button 
+                              <button
                                 onClick={() => handleStatusChange(app._id, "Shortlisted")}
                                 className="p-2 hover:bg-green-500/20 text-green-500 rounded-lg transition-colors"
                                 title="Shortlist"
                               >
                                 <CheckCircle className="w-4 h-4" />
                               </button>
-                              <button 
+                              <button
                                 onClick={() => handleStatusChange(app._id, "Rejected")}
                                 className="p-2 hover:bg-red-500/20 text-red-500 rounded-lg transition-colors"
                                 title="Reject"

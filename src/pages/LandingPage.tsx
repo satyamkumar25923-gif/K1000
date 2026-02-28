@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { motion } from "motion/react";
 import { Briefcase, ShieldCheck, Zap, ArrowRight, Star } from "lucide-react";
+import MagicBento from "../components/MagicBento";
 
 export default function LandingPage() {
   return (
@@ -28,14 +29,14 @@ export default function LandingPage() {
             Stop hunting through WhatsApp groups. Access all internships and job opportunities in one premium, structured system.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-            <Link 
-              to="/signup" 
+            <Link
+              to="/signup"
               className="gold-gradient px-8 py-4 rounded-full text-lg font-bold flex items-center gap-2 hover:scale-105 transition-transform shadow-xl shadow-gold-500/20"
             >
               Join as Student <ArrowRight className="w-5 h-5" />
             </Link>
-            <Link 
-              to="/login" 
+            <Link
+              to="/login"
               className="glass px-8 py-4 rounded-full text-lg font-bold hover:bg-white/10 transition-colors"
             >
               Admin Portal
@@ -44,7 +45,7 @@ export default function LandingPage() {
         </motion.div>
       </section>
 
-      {/* Features */}
+      {/* Features with MagicBento */}
       <section className="max-w-7xl mx-auto px-6 py-24 border-t border-white/5">
         <div className="grid md:grid-cols-3 gap-8">
           {[
@@ -70,11 +71,25 @@ export default function LandingPage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.2 }}
-              className="glass p-8 rounded-3xl hover:border-gold-500/30 transition-colors group"
             >
-              <div className="mb-6 group-hover:scale-110 transition-transform">{feature.icon}</div>
-              <h3 className="text-2xl font-bold mb-4">{feature.title}</h3>
-              <p className="text-gray-400 leading-relaxed">{feature.desc}</p>
+              <MagicBento
+                className="glass p-8 rounded-3xl h-full"
+                textAutoHide={true}
+                enableStars
+                enableSpotlight
+                enableBorderGlow={true}
+                enableTilt={false}
+                enableMagnetism={false}
+                clickEffect
+                spotlightRadius={400}
+                particleCount={12}
+                glowColor="245, 158, 11"
+                disableAnimations={false}
+              >
+                <div className="mb-6 group-hover:scale-110 transition-transform">{feature.icon}</div>
+                <h3 className="text-2xl font-bold mb-4">{feature.title}</h3>
+                <p className="text-gray-400 leading-relaxed">{feature.desc}</p>
+              </MagicBento>
             </motion.div>
           ))}
         </div>
