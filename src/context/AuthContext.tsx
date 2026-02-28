@@ -30,7 +30,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       axios.get("/api/users/profile")
         .then(res => {
           setUser({
-            id: res.data._id,
+            id: res.data.id || res.data._id,
             name: res.data.name,
             email: res.data.email,
             role: res.data.role

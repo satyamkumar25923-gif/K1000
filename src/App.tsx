@@ -67,9 +67,10 @@ function AppContent() {
 }
 
 export default function App() {
+  const basename = (import.meta as any).env.BASE_URL || "/";
   return (
     <AuthProvider>
-      <Router>
+      <Router basename={basename}>
         <AppContent />
       </Router>
     </AuthProvider>
