@@ -31,6 +31,44 @@ async function startServer() {
   // Database Connection (SQLite is initialized in db.ts)
   console.log("Using SQLite database for zero-config environment.");
 
+  // Seed Demo Users
+  const seedDemoUsers = async () => {
+    try {
+      const demoAdminEmail = "admin@demo.com";
+      const demoStudentEmail = "student@demo.com";
+
+      const adminExists = await User.findOne({ email: demoAdminEmail });
+      if (!adminExists) {
+        const hashedPassword = await bcrypt.hash("password123", 10);
+        await User.create({
+          name: "Demo Admin",
+          email: demoAdminEmail,
+          password: hashedPassword,
+          role: "admin"
+        });
+        console.log("Demo Admin created: admin@demo.com / password123");
+      }
+
+      const studentExists = await User.findOne({ email: demoStudentEmail });
+      if (!studentExists) {
+        const hashedPassword = await bcrypt.hash("password123", 10);
+        await User.create({
+          name: "Demo Student",
+          email: demoStudentEmail,
+          password: hashedPassword,
+          role: "student",
+          branch: "Computer Science",
+          year: "3rd Year",
+          skills: ["React", "Node.js", "TypeScript"]
+        });
+        console.log("Demo Student created: student@demo.com / password123");
+      }
+    } catch (err) {
+      console.error("Error seeding demo users:", err);
+    }
+  };
+  seedDemoUsers();
+
   // --- API Routes ---
 
   // Auth Routes

@@ -89,6 +89,24 @@ export default function LoginPage() {
           </button>
         </form>
 
+        <div className="mt-8 pt-8 border-t border-white/5">
+          <p className="text-center text-xs text-gray-500 uppercase font-bold tracking-widest mb-4">Quick Demo Access</p>
+          <div className="grid grid-cols-2 gap-4">
+            <button 
+              onClick={() => { setEmail("student@demo.com"); setPassword("password123"); }}
+              className="glass py-2 rounded-xl text-xs font-bold hover:bg-white/10 transition-colors border-gold-500/20 text-gold-400"
+            >
+              Demo Student
+            </button>
+            <button 
+              onClick={() => { setEmail("admin@demo.com"); setPassword("password123"); }}
+              className="glass py-2 rounded-xl text-xs font-bold hover:bg-white/10 transition-colors border-gold-500/20 text-gold-400"
+            >
+              Demo Admin
+            </button>
+          </div>
+        </div>
+
         <p className="text-center mt-8 text-gray-400">
           Don't have an account? <Link to="/signup" className="text-gold-400 hover:underline">Create one</Link>
         </p>
