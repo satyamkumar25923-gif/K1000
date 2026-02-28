@@ -15,13 +15,19 @@ export const User = {
     const key = Object.keys(query)[0];
     const stmt = db.prepare(`SELECT * FROM users WHERE ${key} = ?`);
     const user = stmt.get(query[key]) as any;
-    if (user) user.skills = parseJSON(user.skills);
+    if (user) {
+      user._id = user.id;
+      user.skills = parseJSON(user.skills);
+    }
     return user;
   },
   findById: (id: string) => {
     const stmt = db.prepare(`SELECT * FROM users WHERE id = ?`);
     const user = stmt.get(id) as any;
-    if (user) user.skills = parseJSON(user.skills);
+    if (user) {
+      user._id = user.id;
+      user.skills = parseJSON(user.skills);
+    }
     return user;
   },
   create: (data: any) => {
@@ -31,14 +37,16 @@ export const User = {
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `);
     stmt.run(id, data.name, data.email, data.password, data.role || 'student', data.branch || null, data.year || null, JSON.stringify(data.skills || []));
-    return { id, ...data };
+    return { id, _id: id, ...data };
   },
   update: (id: string, data: any) => {
     const fields = Object.keys(data).map(k => `${k} = ?`).join(", ");
     const values = Object.values(data).map(v => Array.isArray(v) ? JSON.stringify(v) : v);
     const stmt = db.prepare(`UPDATE users SET ${fields} WHERE id = ?`);
     stmt.run(...values, id);
-    return User.findById(id);
+    const user = User.findById(id);
+    if (user) user._id = user.id;
+    return user;
   }
 };
 
@@ -46,23 +54,26 @@ export const Job = {
   find: (query: any = {}) => {
     let sql = "SELECT * FROM jobs WHERE 1=1";
     const params: any[] = [];
-    
+
     if (query.type) { sql += " AND type = ?"; params.push(query.type); }
     if (query.workMode) { sql += " AND workMode = ?"; params.push(query.workMode); }
-    if (query.search) { 
-      sql += " AND (title LIKE ? OR company LIKE ?)"; 
-      params.push(`%${query.search}%`, `%${query.search}%`); 
+    if (query.search) {
+      sql += " AND (title LIKE ? OR company LIKE ?)";
+      params.push(`%${query.search}%`, `%${query.search}%`);
     }
     if (query.location) { sql += " AND location LIKE ?"; params.push(`%${query.location}%`); }
-    
+
     sql += " ORDER BY createdAt DESC";
     const stmt = db.prepare(sql);
-    return stmt.all(...params).map((j: any) => ({ ...j, skillsRequired: parseJSON(j.skillsRequired) }));
+    return stmt.all(...params).map((j: any) => ({ ...j, _id: j.id, skillsRequired: parseJSON(j.skillsRequired) }));
   },
   findById: (id: string) => {
     const stmt = db.prepare(`SELECT * FROM jobs WHERE id = ?`);
     const job = stmt.get(id) as any;
-    if (job) job.skillsRequired = parseJSON(job.skillsRequired);
+    if (job) {
+      job._id = job.id;
+      job.skillsRequired = parseJSON(job.skillsRequired);
+    }
     return job;
   },
   create: (data: any) => {
@@ -72,7 +83,7 @@ export const Job = {
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
     stmt.run(id, data.title, data.company, data.location, data.type, data.workMode, data.salary, data.description, JSON.stringify(data.skillsRequired || []), data.deadline, data.postedBy);
-    return { id, ...data };
+    return { id, _id: id, ...data };
   },
   update: (id: string, data: any) => {
     const { id: _, ...rest } = data;
@@ -80,7 +91,9 @@ export const Job = {
     const values = Object.values(rest).map(v => Array.isArray(v) ? JSON.stringify(v) : v);
     const stmt = db.prepare(`UPDATE jobs SET ${fields} WHERE id = ?`);
     stmt.run(...values, id);
-    return Job.findById(id);
+    const job = Job.findById(id);
+    if (job) job._id = job.id;
+    return job;
   },
   delete: (id: string) => {
     db.prepare("DELETE FROM jobs WHERE id = ?").run(id);
@@ -95,23 +108,25 @@ export const Application = {
     const id = uuidv4();
     const stmt = db.prepare(`INSERT INTO applications (id, studentId, jobId) VALUES (?, ?, ?)`);
     stmt.run(id, data.studentId, data.jobId);
-    return { id, ...data, status: 'Applied' };
+    return { id, _id: id, ...data, status: 'Applied' };
   },
   findOne: (query: any) => {
     const keys = Object.keys(query);
     const sql = `SELECT * FROM applications WHERE ${keys.map(k => `${k} = ?`).join(" AND ")}`;
-    return db.prepare(sql).get(...Object.values(query));
+    const app = db.prepare(sql).get(...Object.values(query)) as any;
+    if (app) app._id = app.id;
+    return app;
   },
   find: (query: any) => {
     const keys = Object.keys(query);
     const sql = `SELECT * FROM applications WHERE ${keys.map(k => `${k} = ?`).join(" AND ")} ORDER BY appliedAt DESC`;
     const apps = db.prepare(sql).all(...Object.values(query)) as any[];
-    
+
     // Manual Population
     return apps.map(app => {
       const job = Job.findById(app.jobId);
       const student = User.findById(app.studentId);
-      return { ...app, jobId: job, studentId: student };
+      return { ...app, _id: app.id, jobId: job, studentId: student };
     });
   },
   updateStatus: (id: string, status: string) => {

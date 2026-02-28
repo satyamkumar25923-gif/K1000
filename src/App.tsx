@@ -10,6 +10,7 @@ import JobDetailPage from "./pages/JobDetailPage";
 import ProfilePage from "./pages/ProfilePage";
 import AddEditJobPage from "./pages/AddEditJobPage";
 import Navbar from "./components/Navbar";
+import BackgroundParticles from "./components/BackgroundParticles";
 import { Loader2 } from "lucide-react";
 
 function ProtectedRoute({ children, role }: { children: React.ReactNode, role?: string }) {
@@ -29,24 +30,27 @@ function ProtectedRoute({ children, role }: { children: React.ReactNode, role?: 
 
 function AppContent() {
   return (
-    <div className="min-h-screen bg-black text-white font-sans">
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignupPage />} />
-        
-        {/* Student Routes */}
-        <Route path="/jobs" element={<ProtectedRoute><JobListingPage /></ProtectedRoute>} />
-        <Route path="/jobs/:id" element={<ProtectedRoute><JobDetailPage /></ProtectedRoute>} />
-        <Route path="/dashboard" element={<ProtectedRoute role="student"><StudentDashboard /></ProtectedRoute>} />
-        <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-        
-        {/* Admin Routes */}
-        <Route path="/admin" element={<ProtectedRoute role="admin"><AdminDashboard /></ProtectedRoute>} />
-        <Route path="/admin/jobs/add" element={<ProtectedRoute role="admin"><AddEditJobPage /></ProtectedRoute>} />
-        <Route path="/admin/jobs/edit/:id" element={<ProtectedRoute role="admin"><AddEditJobPage /></ProtectedRoute>} />
-      </Routes>
+    <div className="min-h-screen bg-black text-white font-sans overflow-hidden">
+      <BackgroundParticles />
+      <div className="relative z-10">
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
+
+          {/* Student Routes */}
+          <Route path="/jobs" element={<ProtectedRoute><JobListingPage /></ProtectedRoute>} />
+          <Route path="/jobs/:id" element={<ProtectedRoute><JobDetailPage /></ProtectedRoute>} />
+          <Route path="/dashboard" element={<ProtectedRoute role="student"><StudentDashboard /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+
+          {/* Admin Routes */}
+          <Route path="/admin" element={<ProtectedRoute role="admin"><AdminDashboard /></ProtectedRoute>} />
+          <Route path="/admin/jobs/add" element={<ProtectedRoute role="admin"><AddEditJobPage /></ProtectedRoute>} />
+          <Route path="/admin/jobs/edit/:id" element={<ProtectedRoute role="admin"><AddEditJobPage /></ProtectedRoute>} />
+        </Routes>
+      </div>
     </div>
   );
 }
